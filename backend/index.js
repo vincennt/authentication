@@ -3,9 +3,15 @@ const app = express()
 const port = 5000
 const session = require("express-session")
 const passport = require("./config/passport")
+const cors = require("cors")
 
 const authRoutes = require("./routes/auth")
 const adminRoutes = require("./routes/admin")
+
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true
+}))
 
 app.use(express.json())
 
