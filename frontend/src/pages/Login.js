@@ -1,6 +1,6 @@
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 import {
   Text,
@@ -91,7 +91,12 @@ const Login = () => {
               <FormErrorMessage>{formik.errors.password}</FormErrorMessage>
             </FormControl>
 
-            <Button mt={5} w='100%' type='submit' color='white' bg='salmon'>Button</Button>
+            <Button mt={5} w='100%' type='submit' color='white' bg='salmon'>Login</Button>
+            <Link to="/signup">
+              <Text mt={5} as="p" color="blue.500">
+                Already have an account ? Login!
+              </Text>
+            </Link>
           </form>
         </Center>
       </GridItem>

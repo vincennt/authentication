@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 import {
   Text,
@@ -27,11 +27,11 @@ const Signup = () => {
     initialValues: {
       username: "bobby",
       password: "bobbybobby",
-      passwordConfirmation: "",
+      passwordConfirmation: "bobbybobby",
       email: "bobby@bobby.bobby",
-      age: "2",
+      age: "2"
     },
-    onSubmit: values => {  
+    onSubmit: values => {
       // on va créer notre utilisateur dans le backend    
       fetch('http://localhost:5000/auth/signup', {
         method: 'post',
@@ -39,30 +39,46 @@ const Signup = () => {
           'Content-type': 'application/json'
         },
         credentials: 'include',
-        body: JSON.stringify(values)
+        body: JSON.stringify({
+          age: values.age,
+          email: values.email,
+          password: values.password,
+          username: values.username
+        })
       })
         .then(response => response.json())
         .then(user => {
           if (user.error) {
             alert(user.error)
           } else {
-            // si tout va bien, on récupère les infos de l'utilisateur
-            // qu'on vient de créer. On va donc pouvoir utiliser son username
-            // et son password pour se connecter
-            fetch('http://localhost:5000/auth/login', {
+            const formdata = new FormData()
+            formdata.append('profilePicture', values.file, values.file.name)
+
+            fetch(`http://localhost:5000/users/${user.id}`, {
               method: 'post',
-              headers: {
-                'Content-Type': 'application/json'
-              },
               credentials: 'include',
-              body: JSON.stringify({
-                username: user.username,
-                password: user.password
-              })
+              body: formdata
             })
               .then(response => response.json())
               .then(data => {
-                navigate('/admin')
+                // // si tout va bien, on récupère les infos de l'utilisateur
+                // qu'on vient de créer. On va donc pouvoir utiliser son username
+                // et son password pour se connecter
+                fetch('http://localhost:5000/auth/login', {
+                  method: 'post',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  credentials: 'include',
+                  body: JSON.stringify({
+                    username: user.username,
+                    password: user.password
+                  })
+                })
+                  .then(response => response.json())
+                  .then(data => {
+                    navigate('/admin')
+                  })
               })
           }
         })
@@ -86,6 +102,10 @@ const Signup = () => {
 
   const togglePasswordVisible = () => {
     setPasswordVisible(!passwordVisible)
+  }
+
+  const handleFileChange = e => {
+    formik.setFieldValue('file', e.target.files[0])
   }
 
   return (
@@ -184,7 +204,29 @@ const Signup = () => {
               <FormErrorMessage>{formik.errors.age}</FormErrorMessage>
             </FormControl>
 
-            <Button mt={5} w='100%' type='submit' color='white' bg='salmon'>Button</Button>
+            <FormControl mt={5} isInvalid={formik.errors.age}>
+              <FormLabel htmlFor='age'>Photo de profile</FormLabel>
+              <InputGroup>
+                <InputLeftElement
+                  pointerEvents='none'
+                  children={<MoonIcon color='gray.300' />}
+                />
+                <Input
+                  type='file'
+                  name='file'
+                  onChange={handleFileChange}
+                />
+              </InputGroup>
+              <FormErrorMessage>{formik.errors.age}</FormErrorMessage>
+            </FormControl>
+
+            <Button mt={5} w='100%' type='submit' color='white' bg='salmon'>Signup</Button>
+
+            <Link to="/login">
+              <Text mt={5} as="p" color="blue.500">
+                You don't have an account ? Signup!
+              </Text>
+            </Link>
           </form>
         </Center>
       </GridItem>

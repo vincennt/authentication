@@ -43,7 +43,8 @@ app.post('/signup', (req, res) => {
       // je récupère toutes les infos du body (email, username, password, age)
       // et je crée un id
       ...req.body,
-      id: users.length + 1
+      id: users.length + 1,
+      profilePicture: ""
     }
 
     // je lis mon fichier json pour avoir ma liste de user

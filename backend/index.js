@@ -7,6 +7,7 @@ const cors = require("cors")
 
 const authRoutes = require("./routes/auth")
 const adminRoutes = require("./routes/admin")
+const usersRoutes = require("./routes/users")
 
 app.use(cors({
   origin: "http://localhost:3000",
@@ -14,6 +15,8 @@ app.use(cors({
 }))
 
 app.use(express.json())
+
+app.use(express.static('public'))
 
 app.use(session({
   secret: "secret",
@@ -26,6 +29,7 @@ app.use(passport.session())
 
 app.use("/auth", authRoutes)
 app.use("/admin", adminRoutes)
+app.use("/users", usersRoutes)
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`)
