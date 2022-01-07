@@ -8,17 +8,18 @@ const Admin = () => {
   const [users, setUsers] = useState([])
 
   useEffect(() => {
-    fetch('http://localhost:5000/admin', {
-      credentials: "include"
-    })
-      .then(response => response.json())
-      .then(data => {
-        if (data.error) {
-          navigate('/login')
-        } else {
-          setUsers(data)
-        }
+    (async () => {
+      const reponse = await  fetch('http://localhost:5000/admin', {
+        credentials: "include"
       })
+      const data = await reponse.json()
+      if(data.error){
+        navigate('/login')
+      }
+      else{
+        setUsers(data)
+      }
+    })()
   }, [])
 
   const handleLogoutClick = () => {

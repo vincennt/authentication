@@ -31,17 +31,59 @@ const Signup = () => {
       email: "bobby@bobby.bobby",
       age: "2"
     },
-
-    
-    
     onSubmit: values => {
-     
-      newUser(values)
-           
+      // on va créer notre utilisateur dans le backend    
+      fetch('http://localhost:5000/auth/signup', {
+        method: 'post',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          age: values.age,
+          email: values.email,
+          password: values.password,
+          username: values.username
+        })
+      })
+        .then(response => response.json())
+        .then(user => {
+          if (user.error) {
+            alert(user.error)
+          } else {
+            const formdata = new FormData()
+            formdata.append('profilePicture', values.file, values.file.name)
+
+            fetch(`http://localhost:5000/users/${user.id}`, {
+              method: 'post',
+              credentials: 'include',
+              body: formdata
+            })
+              .then(response => response.json())
+              .then(data => {
+                // // si tout va bien, on récupère les infos de l'utilisateur
+                // qu'on vient de créer. On va donc pouvoir utiliser son username
+                // et son password pour se connecter
+                fetch('http://localhost:5000/auth/login', {
+                  method: 'post',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  credentials: 'include',
+                  body: JSON.stringify({
+                    username: user.username,
+                    password: user.password
+                  })
+                })
+                  .then(response => response.json())
+                  .then(data => {
+                    navigate('/admin')
+                  })
+              })
           }
-       
-    ,
-    validateOnChange: false ,
+        })
+    },
+    validateOnChange: false,
     validationSchema: Yup.object({
       username: Yup.string()
         .required("Username is required"),
@@ -57,7 +99,6 @@ const Signup = () => {
         .required("Age is required")
     })
   })
-  
 
   const togglePasswordVisible = () => {
     setPasswordVisible(!passwordVisible)
@@ -65,55 +106,6 @@ const Signup = () => {
 
   const handleFileChange = e => {
     formik.setFieldValue('file', e.target.files[0])
-  }
-  const newUser = async(values)=>{
- // on va créer notre utilisateur dans le backend    
- const reponse = await fetch('http://localhost:5000/auth/signup', {
-  method: 'post',
-  headers: {
-    'Content-type': 'application/json'
-  },
-  credentials: 'include',
-  body: JSON.stringify({
-    age: values.age,
-    email: values.email,
-    password: values.password,
-    username: values.username
-  })
-})
-
-  const user = await reponse.json()
-    if (user.error) {
-      alert(user.error)
-    } else {
-      const formdata = new FormData()
-      formdata.append('profilePicture', values.file, values.file.name)
-
-      const reponse = await fetch(`http://localhost:5000/users/${user.id}`, {
-        method: 'post',
-        credentials: 'include',
-        body: formdata
-      })
-        const data =await reponse.json()
-        
-          // // si tout va bien, on récupère les infos de l'utilisateur
-          // qu'on vient de créer. On va donc pouvoir utiliser son username
-          // et son password pour se connecter
-         const response = await fetch('http://localhost:5000/auth/login', {
-            method: 'post',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-              username: data.username,
-              password: data.password
-            })
-          })
-            
-            navigate('/admin')
-           
-    }
   }
 
   return (
